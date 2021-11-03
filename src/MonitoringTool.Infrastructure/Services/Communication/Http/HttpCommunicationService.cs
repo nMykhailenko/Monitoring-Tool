@@ -11,11 +11,11 @@ namespace MonitoringTool.Infrastructure.Services.Communication.Http
     public class HttpCommunicationService : IHttpCommunicationService
     {
         private const string ErrorMessage = "HttpRequestFailed";
-        
-        private readonly HttpClient _httpClient;
-        public HttpCommunicationService(HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public HttpCommunicationService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         public Task<OneOf<TResponse, ErrorResponse>> SendAsync<TRequest, TResponse>(
@@ -44,7 +44,8 @@ namespace MonitoringTool.Infrastructure.Services.Communication.Http
             HttpRequestMessage requestMessage,
             CancellationToken cancellationToken)
         {
-            var responseMessage = await _httpClient.SendAsync(requestMessage, cancellationToken);
+            var client = _httpClientFactory.CreateClient();
+            var responseMessage = await client.SendAsync(requestMessage, cancellationToken);
 
             var responseBody = await responseMessage.Content.ReadAsStringAsync(cancellationToken);
             if (responseMessage.IsSuccessStatusCode)
