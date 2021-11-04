@@ -34,7 +34,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Database
             var databaseTypes = Enum.GetValues<DatabaseType>().ToList();
             
             // act & assert
-            foreach (var databaseType in databaseTypes )
+            foreach (var databaseType in databaseTypes)
             {
                 var subject = new DatabaseContextRegistrationFactory();
                 subject.Invoking(_ => _.Create(databaseType))
