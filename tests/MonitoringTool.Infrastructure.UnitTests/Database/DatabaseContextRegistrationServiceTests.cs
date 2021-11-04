@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using MonitoringTool.Domain.Enums;
 using MonitoringTool.Infrastructure.Database;
+using MonitoringTool.Infrastructure.UnitTests.Constants;
 using Xunit;
 
 namespace MonitoringTool.Infrastructure.UnitTests.Database
@@ -11,8 +12,8 @@ namespace MonitoringTool.Infrastructure.UnitTests.Database
         private const string ConenctionString = "some connection string";
 
         [Theory]
-        [InlineData(DatabaseType.PostgreSql, "Npgsql.EntityFrameworkCore.PostgreSQL")]
-        [InlineData(DatabaseType.SqlServer, "Microsoft.EntityFrameworkCore.SqlServer")]
+        [InlineData(DatabaseType.PostgreSql, DatabaseConstants.PostgreSqlProviderName)]
+        [InlineData(DatabaseType.SqlServer, DatabaseConstants.SqlServerProviderName)]
         public void
             DatabaseContextRegistrationService_ShouldAdd_ToServiceCollection_ValidTypeOfDatabase(
                 DatabaseType databaseType,
