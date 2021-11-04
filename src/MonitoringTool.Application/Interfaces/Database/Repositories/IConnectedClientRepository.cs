@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MonitoringTool.Domain.Entities;
 
-namespace MonitoringTool.Application.Interfaces.Repositories
+namespace MonitoringTool.Application.Interfaces.Database.Repositories
 {
     public interface IConnectedClientRepository
     {

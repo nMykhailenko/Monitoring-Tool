@@ -3,10 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using MonitoringTool.Application.Interfaces.Repositories;
+using MonitoringTool.Application.Interfaces.Database.Repositories;
 using MonitoringTool.Domain.Entities;
+using MonitoringTool.Infrastructure.Repositories;
 
-namespace MonitoringTool.Infrastructure.Repositories
+namespace MonitoringTool.Infrastructure.Database.Repositories
 {
     public class ConnectedClientRepository : IConnectedClientRepository
     {

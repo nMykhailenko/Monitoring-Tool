@@ -1,10 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using MonitoringTool.Application.Interfaces.Repositories;
+using MonitoringTool.Application.Interfaces.Database.Repositories;
 using MonitoringTool.Application.Interfaces.Services;
 using MonitoringTool.Application.Interfaces.Services.Communication.Http;
 using MonitoringTool.Application.Models.ResponseModels.Errors;
