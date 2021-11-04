@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -15,6 +16,11 @@ namespace MonitoringTool.Infrastructure.Services
 {
     public class HealthCheckService : IHealthCheckService
     {
+        private static readonly ParallelOptions ParallelOptions = new ()
+        {
+            MaxDegreeOfParallelism = 5
+        };
+
         private readonly IConnectedClientRepository _connectedClientRepository;
         private readonly IHttpCommunicationService _httpCommunicationService;
  
@@ -29,24 +35,38 @@ namespace MonitoringTool.Infrastructure.Services
         public async Task CheckAsync(CancellationToken cancellationToken)
         {
             var connectedClients = await _connectedClientRepository.GetActiveAsync(cancellationToken);
+            var connectedClientList = connectedClients.ToList();
             
-            // TODO refactor for Parallel foreach 
-            foreach (var connectedClient in connectedClients)
-            {
-                var clientServicesHealthCheckTasks = connectedClient.ConnectedServices
-                    .Select(x => CheckService(x, cancellationToken));
-                var responses = await Task.WhenAll(clientServicesHealthCheckTasks);
-                foreach (var response in responses)
+            await Parallel.ForEachAsync(
+                connectedClientList,
+                ParallelOptions,
+                async (connectedClient, token) =>
                 {
-                    // TODO send notification if error. send success data to Elastic.
-                    response.Match(
-                        success => true,
-                        error => false);
+                    await CheckServicesAsync(connectedClient.ConnectedServices, token);
                 }
-            }
+            );
         }
 
-        private Task<OneOf<HealthCheckResponse, ErrorResponse>> CheckService(
+        private async Task CheckServicesAsync(
+            IEnumerable<ConnectedService> connectedServices,
+            CancellationToken cancellationToken)
+        {
+            await Parallel.ForEachAsync(
+                connectedServices,
+                ParallelOptions,
+                async (connectedService, token) =>
+                {
+                    var checkServiceResponse =
+                        await CheckServiceAsync(connectedService, token);
+                    
+                    // TODO send notification if error. send success data to Elastic.
+                    checkServiceResponse.Match(
+                        success => true,
+                        error => false);
+                });
+        }
+        
+        private Task<OneOf<HealthCheckResponse, ErrorResponse>> CheckServiceAsync(
             ConnectedService connectedService,
             CancellationToken cancellationToken)
         {
