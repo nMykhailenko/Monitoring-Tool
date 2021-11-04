@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MonitoringTool.Application.Interfaces.Database;
-using MonitoringTool.Infrastructure.Repositories;
 
 namespace MonitoringTool.Infrastructure.Database
 {

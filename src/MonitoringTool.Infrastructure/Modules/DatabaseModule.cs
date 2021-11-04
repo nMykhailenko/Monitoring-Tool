@@ -5,6 +5,7 @@ using MonitoringTool.Application.Interfaces.Database.Repositories;
 using MonitoringTool.Common.Interfaces.Configuration;
 using MonitoringTool.Common.Options;
 using MonitoringTool.Infrastructure.Database;
+using MonitoringTool.Infrastructure.Database.Repositories;
 
 namespace MonitoringTool.Infrastructure.Modules
 {
@@ -23,7 +24,7 @@ namespace MonitoringTool.Infrastructure.Modules
             services.Configure<DatabaseOptions>(x 
                 => _configuration.GetSection(nameof(DatabaseOptions)).Bind(x));
 
-            services.AddScoped<IConnectedClientRepository, IConnectedClientRepository>();
+            services.AddScoped<IConnectedClientRepository, ConnectedClientRepository>();
             services.AddScoped<IDatabaseContextRegistrationFactory, DatabaseContextRegistrationFactory>();
 
             var serviceProvider = services.BuildServiceProvider();

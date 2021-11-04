@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MonitoringTool.Application.Interfaces.Database.Repositories;
 using MonitoringTool.Domain.Entities;
-using MonitoringTool.Infrastructure.Repositories;
 
 namespace MonitoringTool.Infrastructure.Database.Repositories
 {
