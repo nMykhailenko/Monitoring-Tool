@@ -22,6 +22,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringTool.Infrastructu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringTool.Common", "src\MonitoringTool.Common\MonitoringTool.Common.csproj", "{0C11A652-600C-4342-8D80-6B82DB09DBEB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{12B61B71-61AA-418E-A73C-6909F37DCAEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonitoringTool.Infrastructure.UnitTests", "tests\MonitoringTool.Infrastructure.UnitTests\MonitoringTool.Infrastructure.UnitTests.csproj", "{3E3AFED8-4091-41F1-B35D-5FAF22F3F242}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,8 @@ Global
 		{C013E3DE-8952-4303-A732-C69B1DCA63FC} = {DEF2A774-0E77-4F56-87B7-198E3456E1F5}
 		{C90F80C4-3792-4AFF-8A68-FE2EC3272870} = {F51D2E54-5FFC-4854-A917-06D5E1A0B2F3}
 		{0C11A652-600C-4342-8D80-6B82DB09DBEB} = {DEF2A774-0E77-4F56-87B7-198E3456E1F5}
+		{12B61B71-61AA-418E-A73C-6909F37DCAEB} = {63173B78-2F1F-4459-A112-90215E8383E3}
+		{3E3AFED8-4091-41F1-B35D-5FAF22F3F242} = {12B61B71-61AA-418E-A73C-6909F37DCAEB}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8B333DF1-7516-4603-B404-DF4D4E559E14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -55,5 +61,9 @@ Global
 		{0C11A652-600C-4342-8D80-6B82DB09DBEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C11A652-600C-4342-8D80-6B82DB09DBEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C11A652-600C-4342-8D80-6B82DB09DBEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E3AFED8-4091-41F1-B35D-5FAF22F3F242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E3AFED8-4091-41F1-B35D-5FAF22F3F242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E3AFED8-4091-41F1-B35D-5FAF22F3F242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E3AFED8-4091-41F1-B35D-5FAF22F3F242}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
