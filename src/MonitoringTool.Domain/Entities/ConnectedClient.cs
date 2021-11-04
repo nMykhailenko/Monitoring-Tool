@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MonitoringTool.Domain.Entities
@@ -9,6 +8,6 @@ namespace MonitoringTool.Domain.Entities
         public string Name { get; set; } = null!;
         public bool IsActive { get; set; }
         
-        public ICollection<ConnectedService> ConnectedServices { get; set; }
+        public ICollection<ConnectedService> ConnectedServices { get; set; } = null!;
     }
 }

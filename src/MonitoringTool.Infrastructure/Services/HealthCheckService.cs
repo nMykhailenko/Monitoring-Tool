@@ -41,14 +41,13 @@ namespace MonitoringTool.Infrastructure.Services
                 ParallelOptions,
                 async (connectedClient, token) =>
                 {
-                    await CheckServicesAsync(connectedClient.ConnectedServices, token);
+                    await CheckServicesAsync(connectedClient.ConnectedServices);
                 }
             );
         }
 
         private async Task CheckServicesAsync(
-            IEnumerable<ConnectedService> connectedServices,
-            CancellationToken cancellationToken)
+            IEnumerable<ConnectedService> connectedServices)
         {
             await Parallel.ForEachAsync(
                 connectedServices,
