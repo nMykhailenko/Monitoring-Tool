@@ -24,11 +24,21 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore     
-    - name: Generate coverage report
+    - name: Generate MonitoringTool.Infrastructure coverage report
       run: |
         cd ./tests/MonitoringTool.Infrastructure.UnitTests/
         dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
-    - name: Publish coverage report to coveralls.io
+    - name: Publish MonitoringTool.Infrastructure coverage report to coveralls.io
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: ./tests/MonitoringTool.Infrastructure.UnitTests/TestResults/coverage.info 
+   
+    - name: Generate MonitoringTool.Application coverage report
+      run: |
+        cd ./tests/MonitoringTool.Application.UnitTests/
+        dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov
+    - name: Publish MonitoringTool.Application coverage report to coveralls.io
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
