@@ -9,6 +9,6 @@ namespace MonitoringTool.Application.Interfaces.Database.Repositories
     {
         Task<IEnumerable<ConnectedClient>> GetActiveAsync(CancellationToken cancellationToken);
         Task<IEnumerable<ConnectedClient>> GetAllAsync(CancellationToken cancellationToken);
-        Task<ConnectedClient> AddAsync(ConnectedClient connectedClient, CancellationToken cancellationToken);
+        Task AddAsync(ConnectedClient connectedClient, CancellationToken cancellationToken);
     }
 }

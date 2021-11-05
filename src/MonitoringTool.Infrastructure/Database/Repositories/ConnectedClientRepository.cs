@@ -36,12 +36,10 @@ namespace MonitoringTool.Infrastructure.Database.Repositories
 
             return result;        }
 
-        public async Task<ConnectedClient> AddAsync(ConnectedClient connectedClient, CancellationToken cancellationToken)
+        public async Task AddAsync(ConnectedClient connectedClient, CancellationToken cancellationToken)
         {
             await _context.ConnectedClients.AddAsync(connectedClient, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
-
-            return connectedClient;
         }
     }
 }
