@@ -35,5 +35,13 @@ namespace MonitoringTool.Infrastructure.Database.Repositories
                 .ToListAsync(cancellationToken);
 
             return result;        }
+
+        public async Task<ConnectedClient> AddAsync(ConnectedClient connectedClient, CancellationToken cancellationToken)
+        {
+            await _context.ConnectedClients.AddAsync(connectedClient, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return connectedClient;
+        }
     }
 }
