@@ -11,7 +11,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Controllers" />
+      <ProjectReference Include="..\MonitoringTool.Application\MonitoringTool.Application.csproj" />
+      <ProjectReference Include="..\MonitoringTool.Common\MonitoringTool.Common.csproj" />
+      <ProjectReference Include="..\MonitoringTool.Infrastructure\MonitoringTool.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

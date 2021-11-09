@@ -1,12 +1,23 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using MonitoringTool.Common.Extensions;
+using MonitoringTool.Infrastructure.Modules;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.RegisterModule<CommunicationModule>();
+builder.Services.RegisterModule<HealthCheckModule>();
+builder.Services.RegisterModule(new DatabaseModule(builder.Configuration));
 
 builder.Services.AddControllers();
-builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new() { Title = "MonitoringTool.API", Version = "v1" }); });
+builder.Services.AddSwaggerGen(c => 
+{ 
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "MonitoringTool.API", Version = "v1"
+    }); 
+});
 
 var app = builder.Build();
 
