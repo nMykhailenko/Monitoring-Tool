@@ -12,5 +12,6 @@ namespace MonitoringTool.Infrastructure.Database
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
         
         public DbSet<ConnectedClient> ConnectedClients { get; set; }
+        public DbSet<ConnectedService> ConnectedService { get; set; }
     }
 }

@@ -6,5 +6,6 @@ namespace MonitoringTool.Domain.Entities
         public string Name { get; set; } = null!;
         public string BaseUrl { get; set; } = null!;
         public bool IsActive { get; set; }
+        public int ConnectedClientId { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using MonitoringTool.Application.Interfaces.Services;
 using MonitoringTool.Application.Models.RequestModels.ConnectedClient;
 using MonitoringTool.Application.Models.ResponseModels.ConnectedClient;
+using MonitoringTool.Application.Models.ResponseModels.Errors;
 
 namespace MonitoringTool.API.Controllers
 {
@@ -22,13 +23,19 @@ namespace MonitoringTool.API.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(typeof(ConnectedClientResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ModelInvalidResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(EntityIsAlreadyExists), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> AddAsync(
             [FromBody] CreateConnectedClientRequest request,
             CancellationToken cancellationToken)
         {
-            await _connectedClientService.AddAsync(request, cancellationToken);
+            var result = 
+                await _connectedClientService.AddAsync(request, cancellationToken);
 
-            return Ok();
+            return result.Match<IActionResult>(
+                success => Created($"api/connectedClients/{success.Id}", success),
+                entityIsAlreadyExists => Conflict(entityIsAlreadyExists));
         }
 
         [HttpGet("active")]
