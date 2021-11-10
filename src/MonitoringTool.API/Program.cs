@@ -1,9 +1,12 @@
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MonitoringTool.API.Filters;
 using MonitoringTool.Application;
 using MonitoringTool.Infrastructure;
 using MonitoringTool.Infrastructure.Database;
+using Bootstrapper = MonitoringTool.Application.Bootstrapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +14,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddMvc(options =>
+    {
+        options.EnableEndpointRouting = false;
+        options.Filters.Add<ValidationFilter>();
+    })
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining(typeof(Bootstrapper)));
 builder.Services.AddSwaggerGen(c => 
 { 
     c.SwaggerDoc("v1", new()

@@ -7,7 +7,6 @@ namespace MonitoringTool.Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddAutoMapper(typeof(Bootstrapper));
-            
             return services;
         }
     }

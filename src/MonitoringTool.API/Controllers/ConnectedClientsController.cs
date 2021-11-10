@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MonitoringTool.Application.Interfaces.Services;
 using MonitoringTool.Application.Models.RequestModels.ConnectedClient;
+using MonitoringTool.Application.Models.ResponseModels.ConnectedClient;
 
 namespace MonitoringTool.API.Controllers
 {
@@ -29,6 +32,7 @@ namespace MonitoringTool.API.Controllers
         }
 
         [HttpGet("active")]
+        [ProducesResponseType(typeof(IEnumerable<ConnectedClientResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetActiveAsync(CancellationToken cancellationToken) =>
             Ok(await _connectedClientService.GetActiveAsync(cancellationToken));
     }
