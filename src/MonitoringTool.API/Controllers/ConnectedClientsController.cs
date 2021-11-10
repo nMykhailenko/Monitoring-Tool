@@ -8,7 +8,7 @@ namespace MonitoringTool.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("api/[controller]")]
+    [Route("api/connectedClients")]
     public class ConnectedClientsController : ControllerBase
     {
         private readonly IConnectedClientService _connectedClientService;
