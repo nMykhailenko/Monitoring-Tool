@@ -8,6 +8,7 @@ namespace MonitoringTool.Application.Validators.ConnectedClient
     {
         public CreateConnectedServiceRequestValidator()
         {
+            RuleFor(x => x).NotNull().NotEmpty();
             RuleFor(x => x.Name).NotNull().NotEmpty();
             RuleFor(x => x.BaseUrl)
                 .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))

@@ -1,5 +1,6 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MonitoringTool.API.Filters;
@@ -15,11 +16,18 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddMvc(options =>
-    {
-        options.EnableEndpointRouting = false;
-        options.Filters.Add<ValidationFilter>();
-    })
-    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining(typeof(Bootstrapper)));
+{
+    options.Filters.Add(typeof(ValidationFilter));
+})
+.AddFluentValidation(fv =>
+{
+    fv.RegisterValidatorsFromAssemblyContaining(typeof(Bootstrapper));
+});
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
 builder.Services.AddSwaggerGen(c => 
 { 
     c.SwaggerDoc("v1", new()
@@ -42,7 +50,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var dbContext = app.Services.GetRequiredService<ApplicationDbContext>();
-dbContext.Database.Migrate();
+//var scope = app.Services.CreateScope();
+
+//var dbContext = scope.GetRequiredService<ApplicationDbContext>();
+//dbContext.Database.Migrate();
 
 app.Run();
