@@ -9,9 +9,10 @@ namespace MonitoringTool.Application.Validators.ConnectedClient
         {
             RuleFor(x => x).NotNull();
             RuleFor(x => x.Name).NotNull().NotEmpty();
-            RuleFor(x => x.ConnectedServices).Must(x => x.Count > 0);
-            RuleForEach(x => x.ConnectedServices)
-                .SetValidator(new CreateConnectedServiceRequestValidator());
+            RuleFor(x => x.ConnectedServices)
+                .NotNull()
+                .When(x => x.ConnectedServices.Count > 0)
+                .ForEach(x => x.SetValidator(new CreateConnectedServiceRequestValidator()));
         }
     }
 }
