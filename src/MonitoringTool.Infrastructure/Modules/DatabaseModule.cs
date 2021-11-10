@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MonitoringTool.Application.Interfaces.Database;
@@ -34,7 +35,7 @@ namespace MonitoringTool.Infrastructure.Modules
             services = databaseContextRegistrationFactory
                 .Create(databaseOptions.DatabaseType)
                 .Register(databaseOptions.DefaultConnection, services);
-            
+
             return services;
         }
     }
