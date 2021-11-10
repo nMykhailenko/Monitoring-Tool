@@ -1,0 +1,41 @@
+version: "3.6"
+networks:
+  monitoring-tool:
+    driver: bridge
+
+services:
+    monitoring-tool-postgres-db:
+        image: postgres:latest
+        container_name: monitoring-tool-postgres-db
+        restart: always
+        ports:
+            - 5433:5432
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=MonitoringTool
+        networks:
+            - monitoring-tool
+        volumes:
+            - monitoring-tool-data:/var/lib/postgresql/data
+                    
+    monitoring-tool-api:
+        container_name: monitoring-tool-api
+        ports:
+            - 8010:80
+            - 8011:443
+        image: monitoring-tool-api:latest   
+        build:
+            context: ../src
+            dockerfile: MonitoringTool.API/Dockerfile
+        restart: on-failure
+        links: 
+            - monitoring-tool-postgres-db
+        depends_on:
+            - monitoring-tool-postgres-db
+        networks:
+            - monitoring-tool 
+
+volumes:
+    monitoring-tool-data:
+
