@@ -8,7 +8,7 @@ namespace MonitoringTool.API.Controllers
 {
     [ApiController]
     [Produces("application/json")]
-    [Route("api/[controller]")]
+    [Route("api/connectedClients")]
     public class ConnectedClientsController : ControllerBase
     {
         private readonly IConnectedClientService _connectedClientService;
@@ -27,5 +27,9 @@ namespace MonitoringTool.API.Controllers
 
             return Ok();
         }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveAsync(CancellationToken cancellationToken) =>
+            Ok(await _connectedClientService.GetActiveAsync(cancellationToken));
     }
 }

@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using MonitoringTool.Application.Interfaces.Services;
 using MonitoringTool.Common.Extensions;
 using MonitoringTool.Infrastructure.Modules;
+using MonitoringTool.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<IConnectedClientService, ConnectedClientService>();
 builder.Services.RegisterModule<CommunicationModule>();
 builder.Services.RegisterModule<HealthCheckModule>();
 builder.Services.RegisterModule(new DatabaseModule(builder.Configuration));
