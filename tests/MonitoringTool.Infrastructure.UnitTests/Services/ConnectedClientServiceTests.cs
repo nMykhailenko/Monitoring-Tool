@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -5,6 +6,7 @@ using Bogus;
 using FluentAssertions;
 using MonitoringTool.Application.Interfaces.Database.Repositories;
 using MonitoringTool.Application.Interfaces.Services;
+using MonitoringTool.Application.Mappers;
 using MonitoringTool.Application.Models.RequestModels.ConnectedClient;
 using MonitoringTool.Application.Models.ResponseModels.ConnectedClient;
 using MonitoringTool.Domain.Entities;
@@ -17,12 +19,15 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
     public class ConnectedClientServiceTests
     {
         private IConnectedClientService _sut;
-        private readonly Mock<IMapper> _mapperMock;
+        private readonly IMapper _mapper;
         private readonly Mock<IConnectedClientRepository> _connectedClientRepositoryMock;
 
         public ConnectedClientServiceTests()
         {
-            _mapperMock = new Mock<IMapper>();
+            var mapperConfiguration = new MapperConfiguration(
+                cfg => cfg.AddProfile<ConnectedClientMap>());
+            _mapper = mapperConfiguration.CreateMapper();
+
             _connectedClientRepositoryMock = new Mock<IConnectedClientRepository>();
         }
 
@@ -49,7 +54,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                     => x.AddAsync(It.IsAny<ConnectedClient>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(It.IsAny<ConnectedClient>());
 
-            _sut = new ConnectedClientService(_mapperMock.Object, _connectedClientRepositoryMock.Object);
+            _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
             
             // act
            var actual = await _sut.AddAsync(createConnectedClientRequest, CancellationToken.None);
@@ -64,11 +69,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                         It.IsAny<ConnectedClient>(), 
                         It.IsAny<CancellationToken>()), 
                     Times.Exactly(1));
-            _mapperMock.Verify(x 
-                => x.Map<ConnectedClient>(createConnectedClientRequest), Times.Exactly(1));
-            _mapperMock.Verify(x 
-                => x.Map<ConnectedClientResponse>(It.IsAny<ConnectedClient>()), Times.Exactly(1));
-            actual.Value.Should().BeOfType(typeof(ConnectedServiceResponse));
+            actual.Value.Should().BeOfType(typeof(ConnectedClientResponse));
         }
     }
 }
