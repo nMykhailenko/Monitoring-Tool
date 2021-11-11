@@ -43,7 +43,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
             _sut = new ConnectedClientService(_mapperMock.Object, _connectedClientRepositoryMock.Object);
             
             // act
-            await _sut.AddAsync(createConnectedClientRequest, CancellationToken.None);
+w           var actual = await _sut.AddAsync(createConnectedClientRequest, CancellationToken.None);
 
             // assert
             _connectedClientRepositoryMock

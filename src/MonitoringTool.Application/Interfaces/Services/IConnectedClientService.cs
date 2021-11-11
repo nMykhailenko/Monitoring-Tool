@@ -10,7 +10,17 @@ namespace MonitoringTool.Application.Interfaces.Services
 {
     public interface IConnectedClientService
     {
+        Task<OneOf<ConnectedClientResponse, EntityNotFoundResponse>> GetByNameAsync(
+            string name,
+            CancellationToken cancellationToken);
         Task<IEnumerable<ConnectedClientResponse>> GetActiveAsync(CancellationToken cancellationToken);
-        Task<OneOf<ConnectedClientResponse, EntityIsAlreadyExists>>  AddAsync(CreateConnectedClientRequest request, CancellationToken cancellationToken);
+        Task<OneOf<ConnectedClientResponse, EntityIsAlreadyExists>>  AddAsync(
+            CreateConnectedClientRequest request, 
+            CancellationToken cancellationToken);
+
+        Task<OneOf<IEnumerable<ConnectedServiceResponse>, EntityNotFoundResponse>> AddConnectedServicesToClientAsync(
+            string connectedClientName,
+            IEnumerable<CreateConnectedServiceRequest> connectedServicesRequests,
+            CancellationToken cancellationToken);
     }
 }

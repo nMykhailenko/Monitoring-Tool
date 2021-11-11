@@ -21,6 +21,21 @@ namespace MonitoringTool.API.Controllers
         {
             _connectedClientService = connectedClientService;
         }
+        
+        [HttpGet("{name}")]
+        [ProducesResponseType(typeof(ConnectedClientResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EntityNotFoundResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAsync(
+            [FromRoute] string name,
+            CancellationToken cancellationToken)
+        {
+            var result = await _connectedClientService
+                .GetByNameAsync(name, cancellationToken);
+
+            return result.Match<IActionResult>(
+                Ok,
+                entityNotFound => NotFound(entityNotFound));
+        }
 
         [HttpPost]
         [ProducesResponseType(typeof(ConnectedClientResponse), StatusCodes.Status201Created)]
@@ -34,8 +49,24 @@ namespace MonitoringTool.API.Controllers
                 await _connectedClientService.AddAsync(request, cancellationToken);
 
             return result.Match<IActionResult>(
-                success => Created($"api/connectedClients/{success.Id}", success),
+                success => Created($"api/connectedClients/{success.Name}", success),
                 entityIsAlreadyExists => Conflict(entityIsAlreadyExists));
+        }
+
+        [HttpPost("{name}/connectedServices")]
+        [ProducesResponseType(typeof(IEnumerable<ConnectedServiceResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EntityNotFoundResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddConnectedServicesAsync(
+            [FromRoute] string name,
+            [FromBody] IEnumerable<CreateConnectedServiceRequest> request,
+            CancellationToken cancellationToken)
+        {
+            var result = await _connectedClientService
+                .AddConnectedServicesToClientAsync(name, request, cancellationToken);
+
+            return result.Match<IActionResult>(
+                Ok,
+                entityNotFound => NotFound(entityNotFound));
         }
 
         [HttpGet("active")]

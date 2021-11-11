@@ -38,6 +38,19 @@ namespace MonitoringTool.Infrastructure.Services
             return _mapper.Map<IEnumerable<ConnectedClientResponse>>(connectedClients);
         }
 
+        public async Task<OneOf<ConnectedClientResponse, EntityNotFoundResponse>> GetByNameAsync(
+            string name,
+            CancellationToken cancellationToken)
+        {
+            var connectedClient = await _connectedClientRepository.GetByNameAsync(name, cancellationToken);
+            if (connectedClient is null)
+            {
+                return new EntityNotFoundResponse($"Connected client with name: {name} not found.");
+            }
+
+            return _mapper.Map<ConnectedClientResponse>(connectedClient);
+        }
+
         public async Task<OneOf<ConnectedClientResponse, EntityIsAlreadyExists>> AddAsync(
             CreateConnectedClientRequest request, 
             CancellationToken cancellationToken)
@@ -58,11 +71,22 @@ namespace MonitoringTool.Infrastructure.Services
             return new EntityIsAlreadyExists(errorMessage);
         }
 
-        private async Task<IEnumerable<ConnectedServiceResponse>> AddConnectedServicesToClientAsync(
-            ConnectedClient currentConnectedClient,
-            IEnumerable<ConnectedService> connectedServicesToAdd)
+        public async Task<OneOf<IEnumerable<ConnectedServiceResponse>,EntityNotFoundResponse>> AddConnectedServicesToClientAsync(
+            string connectedClientName,
+            IEnumerable<CreateConnectedServiceRequest> connectedServicesRequests,
+            CancellationToken cancellationToken)
         {
+            var connectedClient =
+                await _connectedClientRepository.GetByNameAsync(connectedClientName, cancellationToken);
+            if (connectedClient is null)
+            {
+                var entityNotFoundMessage = $"Connected Client with name: {connectedClientName} not found.";
+                return new EntityNotFoundResponse(entityNotFoundMessage);
+            }
+
+            var connectedServicesToAdd = _mapper.Map<IEnumerable<ConnectedService>>(connectedServicesRequests);
             var result = new List<ConnectedServiceResponse>();
+            
             await Parallel.ForEachAsync(
                 connectedServicesToAdd,
                 ParallelOptions,
@@ -70,11 +94,11 @@ namespace MonitoringTool.Infrastructure.Services
                 {
                     var isConnectedServiceExists = IsConnectedServiceExists(
                         connectedService.Name,
-                        currentConnectedClient.ConnectedServices);
+                        connectedClient.ConnectedServices);
                     
                     if (!isConnectedServiceExists)
                     {
-                        connectedService.ConnectedClientId = currentConnectedClient.Id;
+                        connectedService.ConnectedClientId = connectedClient.Id;
                         var addedConnectedService = await _connectedClientRepository
                             .AddConnectedServiceAsync(connectedService, token);
                         
