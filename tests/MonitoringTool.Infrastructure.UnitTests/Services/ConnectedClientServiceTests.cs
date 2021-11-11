@@ -76,12 +76,30 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                         It.IsAny<CancellationToken>()), 
                     Times.Exactly(1));
             actual.Value.Should().BeOfType(typeof(ConnectedClientResponse));
+            
+            var actualModel = (ConnectedClientResponse)actual.Value;
+            actualModel.Id.Should().Be(expectedConnectedClient.Id);
+            actualModel.Name.Should().BeEquivalentTo(expectedConnectedClient.Name);
+            
+            actualModel.ConnectedServices.Should().HaveCount(connectedServicesPerClientCount); 
+            actualModel.ConnectedServices
+                .Select(c => c.Name)
+                .Should()
+                .Equal(expectedConnectedClient.ConnectedServices.Select(c => c.Name));
+            actualModel.ConnectedServices
+                .Select(c => c.BaseUrl)
+                .Should()
+                .Equal(expectedConnectedClient.ConnectedServices.Select(c => c.BaseUrl));
+            actualModel.ConnectedServices.Select(c => c.IsActive)
+                .Should()
+                .Equal(expectedConnectedClient.ConnectedServices.Select(c => c.IsActive));
         }
 
         [Fact]
         public async Task AddConnectedClient_ShouldReturn_EntityAlreadyExistResponse()
         {
             // arrange
+            const string expectedCode = "EntityIsAlreadyExists";
             const int connectedServicesPerClientCount = 3;
             var createConnectedClientRequest = new Faker<CreateConnectedClientRequest>()
                 .RuleFor(cc => cc.Name, _ => _.Name.FullName())
@@ -93,6 +111,8 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                 .Generate();
 
 
+            var expectedErrorMessage = $"The Connected Client with name: {createConnectedClientRequest.Name} is already exists." +
+                                       $"If you want to add Connected Service for this client you should use another endpoint.";
             var currentConnectedClient = new Faker<ConnectedClient>().Generate();
             _connectedClientRepositoryMock
                 .Setup(x
@@ -108,7 +128,11 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
             _connectedClientRepositoryMock
                 .Verify(x
                     => x.GetByNameAsync(createConnectedClientRequest.Name, CancellationToken.None), Times.Exactly(1));
-            actual.Value.Should().BeOfType(typeof(EntityIsAlreadyExists));
+            actual.Value.Should().NotBeNull().And.BeOfType(typeof(EntityIsAlreadyExists));
+            
+            var actualModel = (EntityIsAlreadyExists)actual.Value;
+            actualModel.Message.Should().BeEquivalentTo(expectedErrorMessage);
+            actualModel.Code.Should().BeEquivalentTo(expectedCode);
         }
     }
 }
