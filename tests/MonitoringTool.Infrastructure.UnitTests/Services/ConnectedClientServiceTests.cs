@@ -9,6 +9,7 @@ using MonitoringTool.Application.Interfaces.Services;
 using MonitoringTool.Application.Mappers;
 using MonitoringTool.Application.Models.RequestModels.ConnectedClient;
 using MonitoringTool.Application.Models.ResponseModels.ConnectedClient;
+using MonitoringTool.Application.Models.ResponseModels.Errors;
 using MonitoringTool.Domain.Entities;
 using MonitoringTool.Infrastructure.Services;
 using Moq;
@@ -37,11 +38,16 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
             // arrange
             const int connectedServicesPerClientCount = 3;
             var createConnectedClientRequest = new Faker<CreateConnectedClientRequest>()
+                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
                 .RuleFor(cc
                     => cc.ConnectedServices, _ => new Faker<CreateConnectedServiceRequest>()
                     .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
+                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
                     .Generate(connectedServicesPerClientCount))
                 .Generate();
+
+            var expectedConnectedClient = _mapper.Map<ConnectedClient>(createConnectedClientRequest);
+            expectedConnectedClient.Id = 10;
 
             ConnectedClient? currentConnectedClient = null;
             _connectedClientRepositoryMock
@@ -52,7 +58,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
             _connectedClientRepositoryMock
                 .Setup(x
                     => x.AddAsync(It.IsAny<ConnectedClient>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(It.IsAny<ConnectedClient>());
+                .ReturnsAsync(expectedConnectedClient);
 
             _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
             
@@ -70,6 +76,39 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                         It.IsAny<CancellationToken>()), 
                     Times.Exactly(1));
             actual.Value.Should().BeOfType(typeof(ConnectedClientResponse));
+        }
+
+        [Fact]
+        public async Task AddConnectedClient_ShouldReturn_EntityAlreadyExistResponse()
+        {
+            // arrange
+            const int connectedServicesPerClientCount = 3;
+            var createConnectedClientRequest = new Faker<CreateConnectedClientRequest>()
+                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
+                .RuleFor(cc
+                    => cc.ConnectedServices, _ => new Faker<CreateConnectedServiceRequest>()
+                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
+                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
+                    .Generate(connectedServicesPerClientCount))
+                .Generate();
+
+
+            var currentConnectedClient = new Faker<ConnectedClient>().Generate();
+            _connectedClientRepositoryMock
+                .Setup(x
+                    => x.GetByNameAsync(createConnectedClientRequest.Name, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(currentConnectedClient);
+
+            _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
+
+            // act
+            var actual = await _sut.AddAsync(createConnectedClientRequest, CancellationToken.None);
+
+            // assert
+            _connectedClientRepositoryMock
+                .Verify(x
+                    => x.GetByNameAsync(createConnectedClientRequest.Name, CancellationToken.None), Times.Exactly(1));
+            actual.Value.Should().BeOfType(typeof(EntityIsAlreadyExists));
         }
     }
 }

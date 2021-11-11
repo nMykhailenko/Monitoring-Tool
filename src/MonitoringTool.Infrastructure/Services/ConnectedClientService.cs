@@ -54,15 +54,15 @@ namespace MonitoringTool.Infrastructure.Services
         public async Task<OneOf<ConnectedClientResponse, EntityIsAlreadyExists>> AddAsync(
             CreateConnectedClientRequest request, 
             CancellationToken cancellationToken)
-        {
-            var connectedClient = _mapper.Map<ConnectedClient>(request);
-           
+        {           
             var currentConnectedClient = await _connectedClientRepository.GetByNameAsync(
-                connectedClient.Name,
+                request.Name,
                 cancellationToken);
             if (currentConnectedClient is null)
             {
+                var connectedClient = _mapper.Map<ConnectedClient>(request);
                 var addedConnectedClient = await _connectedClientRepository.AddAsync(connectedClient, cancellationToken);
+                
                 return  _mapper.Map<ConnectedClientResponse>(addedConnectedClient);
             }
 
