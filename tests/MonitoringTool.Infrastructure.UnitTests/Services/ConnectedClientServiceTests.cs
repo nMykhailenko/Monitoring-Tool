@@ -33,6 +33,78 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
         }
 
         [Fact]
+        public async Task GetByName_ShouldReturn_ConnectedClientResponse_If_ConnectedClient_With_Defined_Name_Is_Exists()
+        {
+            // arrange 
+            const int connectedServicesPerClientCount = 3;
+            const string connectedClientName = "test name";
+            
+            var expectedConnectedClient = new Faker<ConnectedClient>()
+                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
+                .RuleFor(cc
+                    => cc.ConnectedServices, _ => new Faker<ConnectedService>()
+                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
+                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
+                    .Generate(connectedServicesPerClientCount))
+                .Generate();;
+            
+            _connectedClientRepositoryMock
+                .Setup(x
+                    => x.GetByNameAsync(connectedClientName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedConnectedClient);
+            
+            _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
+
+            // act 
+            var actual = await _sut.GetByNameAsync(connectedClientName, CancellationToken.None);
+            
+            // assert
+            var actualModel = (ConnectedClientResponse)actual.Value;
+            actualModel.Id.Should().Be(expectedConnectedClient.Id);
+            actualModel.Name.Should().BeEquivalentTo(expectedConnectedClient.Name);
+            
+            actualModel.ConnectedServices.Should().HaveCount(connectedServicesPerClientCount); 
+            actualModel.ConnectedServices
+                .Select(c => c.Name)
+                .Should()
+                .Equal(expectedConnectedClient.ConnectedServices.Select(c => c.Name));
+            actualModel.ConnectedServices
+                .Select(c => c.BaseUrl)
+                .Should()
+                .Equal(expectedConnectedClient.ConnectedServices.Select(c => c.BaseUrl));
+            actualModel.ConnectedServices.Select(c => c.IsActive)
+                .Should()
+                .Equal(expectedConnectedClient.ConnectedServices.Select(c => c.IsActive));
+        }
+        
+        [Fact]
+        public async Task GetByName_ShouldReturn_EntityNotFoundResponse_If_ConnectedClient_With_Defined_Name_Not_Exists()
+        {
+            // arrange 
+            const string expectedCode = "EntityNotFound";
+            const string connectedClientName = "test name";
+            var expectedErrorMessage = $"Connected client with name: {connectedClientName} not found.";
+            
+            ConnectedClient? currentConnectedClient = null;
+            _connectedClientRepositoryMock
+                .Setup(x
+                    => x.GetByNameAsync(connectedClientName, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(currentConnectedClient);
+            
+            _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
+
+            // act 
+            var actual = await _sut.GetByNameAsync(connectedClientName, CancellationToken.None);
+            
+            // assert
+            actual.Value.Should().BeOfType(typeof(EntityNotFoundResponse));
+            
+            var actualModel = (EntityNotFoundResponse)actual.Value;
+            actualModel.Message.Should().BeEquivalentTo(expectedErrorMessage);
+            actualModel.Code.Should().BeEquivalentTo(expectedCode);
+        }
+
+        [Fact]
         public async Task AddConnectedClient_ShouldReturn_AddedConnectedClient()
         {
             // arrange
