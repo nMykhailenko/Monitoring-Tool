@@ -76,14 +76,23 @@ namespace MonitoringTool.Infrastructure.Services
             IEnumerable<CreateConnectedServiceRequest> connectedServicesRequests,
             CancellationToken cancellationToken)
         {
-            var connectedClient =
-                await _connectedClientRepository.GetByNameAsync(connectedClientName, cancellationToken);
-            if (connectedClient is null)
-            {
-                var entityNotFoundMessage = $"Connected Client with name: {connectedClientName} not found.";
-                return new EntityNotFoundResponse(entityNotFoundMessage);
-            }
+            var connectedClientResponse = await GetByNameAsync(connectedClientName, cancellationToken);
 
+            return await connectedClientResponse.Match<Task<OneOf<IEnumerable<ConnectedServiceResponse>,EntityNotFoundResponse>>>(
+                async connectedClient =>
+                {
+                    var connectedServiceResponses =  await AssignConnectedServicesToClientAsync(
+                        connectedClient,
+                        connectedServicesRequests);
+                    return connectedServiceResponses.ToList();
+                },
+                async entityNotFound =>  entityNotFound);
+        }
+
+        private async Task<IEnumerable<ConnectedServiceResponse>> AssignConnectedServicesToClientAsync(
+            ConnectedClientResponse connectedClient,
+            IEnumerable<CreateConnectedServiceRequest> connectedServicesRequests)
+        {
             var connectedServicesToAdd = _mapper.Map<IEnumerable<ConnectedService>>(connectedServicesRequests);
             var result = new List<ConnectedServiceResponse>();
             
@@ -109,13 +118,14 @@ namespace MonitoringTool.Infrastructure.Services
 
             return result;
         }
-        
+
         private bool IsConnectedServiceExists(
             string name, 
-            IEnumerable<ConnectedService> currentConnectedServices)
+            IEnumerable<ConnectedServiceResponse> currentConnectedServices)
         {
             return currentConnectedServices.FirstOrDefault(x
-                => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase)) != null;
+                => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase) &&
+                   x.IsActive) != null;
         }
     }
 }
