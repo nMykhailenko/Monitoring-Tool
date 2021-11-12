@@ -329,10 +329,18 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                     => x.GetByNameAsync(connectedClientName, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedConnectedClient);
 
+            var addedConnectedService = new ConnectedService
+            {
+                Name = notActiveConnectedService.Name,
+                BaseUrl = notActiveConnectedService.BaseUrl,
+                IsActive = true,
+                ConnectedClientId = connectedClientId,
+                Id = connectedServiceId
+            };
             _connectedClientRepositoryMock
                 .Setup(x
-                    => x.AddConnectedServiceAsync(It.IsAny<ConnectedService>(), CancellationToken.None))
-                .ReturnsAsync(notActiveConnectedService);
+                    => x.AddConnectedServiceAsync(It.IsAny<ConnectedService>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(addedConnectedService);
             
             _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
 
