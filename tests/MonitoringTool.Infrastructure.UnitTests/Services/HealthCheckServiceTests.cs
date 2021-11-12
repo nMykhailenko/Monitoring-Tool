@@ -9,6 +9,7 @@ using MonitoringTool.Application.Interfaces.Services.Communication.Http;
 using MonitoringTool.Application.Models.ResponseModels.HealthCheck;
 using MonitoringTool.Domain.Entities;
 using MonitoringTool.Infrastructure.Services;
+using MonitoringTool.Infrastructure.UnitTests.Utils;
 using Moq;
 using Xunit;
 
@@ -30,15 +31,9 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
         public async Task CheckAsync_ShouldRun_WithoutExceptions()
         {
             // arrange
-            const int connectedClientCount = 2;
-            const int connectedServicesPerClientCount = 3;
+            const int count = 2;
             var healthCheckResponse = new Faker<HealthCheckResponse>().Generate();
-            var connectedClients = new Faker<ConnectedClient>()
-                .RuleFor(cc => cc.ConnectedServices, _ => new Faker<ConnectedService>()
-                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
-                    .Generate(connectedServicesPerClientCount))
-                .Generate(connectedClientCount)
-                .ToList();
+            var connectedClients = ConnectedClientUtils.GetConnectedClients(count);
 
             _connectedClientRepositoryMock
                 .Setup(x => x.GetActiveAsync(CancellationToken.None))
@@ -68,7 +63,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
                         It.IsAny<string>(), 
                         HttpMethod.Get, 
                         It.IsAny<CancellationToken>()),
-                    Times.Exactly(connectedClientCount * connectedServicesPerClientCount));
+                    Times.Exactly(count * count));
         }
     }
 }
