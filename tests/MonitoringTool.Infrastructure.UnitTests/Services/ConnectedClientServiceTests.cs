@@ -13,9 +13,9 @@ using MonitoringTool.Application.Models.ResponseModels.ConnectedClient;
 using MonitoringTool.Application.Models.ResponseModels.Errors;
 using MonitoringTool.Domain.Entities;
 using MonitoringTool.Infrastructure.Services;
+using MonitoringTool.Infrastructure.UnitTests.Utils;
 using Moq;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MonitoringTool.Infrastructure.UnitTests.Services
 {
@@ -39,32 +39,26 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
         {
             // arrange
             const int connectedServicesPerClientCount = 3;
-            var expectedConnectedClient = new Faker<ConnectedClient>()
-                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
-                .RuleFor(cc => cc.IsActive, _ => true)
-                .RuleFor(cc
-                    => cc.ConnectedServices, _ => new Faker<ConnectedService>()
-                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
-                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
-                    .Generate(connectedServicesPerClientCount))
-                .Generate(connectedServicesPerClientCount);
+            var expectedConnectedClients = ConnectedClientUtils
+                .GetConnectedClients(connectedServicesPerClientCount)
+                .ToList();
             
             _connectedClientRepositoryMock
                 .Setup(x
                     => x.GetActiveAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedConnectedClient);
+                .ReturnsAsync(expectedConnectedClients);
 
             _sut = new ConnectedClientService(_mapper, _connectedClientRepositoryMock.Object);
             
             // act
-            var actual = await _sut.GetActiveAsync(CancellationToken.None);
+            var actual = (await _sut.GetActiveAsync(CancellationToken.None)).ToList();
             
             // assert
-            actual.Count().Should().Be(expectedConnectedClient.Count);
+            actual.Count().Should().Be(expectedConnectedClients.Count);
             actual
                 .Select(x => x.IsActive)
                 .Should()
-                .Equal(expectedConnectedClient.Select(c => c.IsActive));
+                .Equal(expectedConnectedClients.Select(c => c.IsActive));
         }
 
         [Fact]
@@ -73,15 +67,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
             // arrange 
             const int connectedServicesPerClientCount = 3;
             const string connectedClientName = "test name";
-            
-            var expectedConnectedClient = new Faker<ConnectedClient>()
-                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
-                .RuleFor(cc
-                    => cc.ConnectedServices, _ => new Faker<ConnectedService>()
-                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
-                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
-                    .Generate(connectedServicesPerClientCount))
-                .Generate();;
+            var expectedConnectedClient = ConnectedClientUtils.GetConnectedClient(connectedServicesPerClientCount);
             
             _connectedClientRepositoryMock
                 .Setup(x
@@ -144,14 +130,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
         {
             // arrange
             const int connectedServicesPerClientCount = 3;
-            var createConnectedClientRequest = new Faker<CreateConnectedClientRequest>()
-                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
-                .RuleFor(cc
-                    => cc.ConnectedServices, _ => new Faker<CreateConnectedServiceRequest>()
-                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
-                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
-                    .Generate(connectedServicesPerClientCount))
-                .Generate();
+            var createConnectedClientRequest = ConnectedClientUtils.GetCreateConnectedClientRequest(connectedServicesPerClientCount);
 
             var expectedConnectedClient = _mapper.Map<ConnectedClient>(createConnectedClientRequest);
             expectedConnectedClient.Id = 10;
@@ -208,15 +187,7 @@ namespace MonitoringTool.Infrastructure.UnitTests.Services
             // arrange
             const string expectedCode = "EntityIsAlreadyExists";
             const int connectedServicesPerClientCount = 3;
-            var createConnectedClientRequest = new Faker<CreateConnectedClientRequest>()
-                .RuleFor(cc => cc.Name, _ => _.Name.FullName())
-                .RuleFor(cc
-                    => cc.ConnectedServices, _ => new Faker<CreateConnectedServiceRequest>()
-                    .RuleFor(cs => cs.BaseUrl, _ => _.Internet.UrlRootedPath())
-                    .RuleFor(cs => cs.Name, _ => _.Name.FullName())
-                    .Generate(connectedServicesPerClientCount))
-                .Generate();
-
+            var createConnectedClientRequest = ConnectedClientUtils.GetCreateConnectedClientRequest(connectedServicesPerClientCount);
 
             var expectedErrorMessage = $"The Connected Client with name: {createConnectedClientRequest.Name} is already exists." +
                                        $"If you want to add Connected Service for this client you should use another endpoint.";
