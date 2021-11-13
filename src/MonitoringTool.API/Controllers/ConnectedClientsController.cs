@@ -58,6 +58,7 @@ namespace MonitoringTool.API.Controllers
         [HttpPost("{name}/connectedServices", Name = "Add Connected service to connected client")]
         [ProducesResponseType(typeof(ConnectedServiceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(EntityNotFoundResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(EntityIsAlreadyExists), StatusCodes.Status409Conflict)]
         public async Task<IActionResult> AddConnectedServiceAsync(
             [FromRoute] string name,
             [FromBody] CreateConnectedServiceRequest request,
@@ -68,7 +69,8 @@ namespace MonitoringTool.API.Controllers
 
             return result.Match<IActionResult>(
                 Ok,
-                entityNotFound => NotFound(entityNotFound));
+                entityNotFound => NotFound(entityNotFound),
+                entityIsAlreadyExists => Conflict(entityIsAlreadyExists));
         }
 
         [HttpGet("active")]
