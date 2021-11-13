@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Reflection;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +9,7 @@ using MonitoringTool.API.Filters;
 using MonitoringTool.Application;
 using MonitoringTool.Infrastructure;
 using MonitoringTool.Infrastructure.Database;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Bootstrapper = MonitoringTool.Application.Bootstrapper;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,12 +31,17 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-builder.Services.AddSwaggerGen(c => 
-{ 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.EnableAnnotations();
+    c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
     c.SwaggerDoc("v1", new()
     {
         Title = "MonitoringTool.API", Version = "v1"
     }); 
+    
+    c.CustomOperationIds(apiDesc 
+        => apiDesc.TryGetMethodInfo(out MethodInfo methodInfo) ? methodInfo.Name : null);
 });
 
 var app = builder.Build();
@@ -50,9 +58,9 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-//var scope = app.Services.CreateScope();
+var scope = app.Services.CreateScope();
 
-//var dbContext = scope.GetRequiredService<ApplicationDbContext>();
-//dbContext.Database.Migrate();
+var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+dbContext.Database.Migrate();
 
 app.Run();

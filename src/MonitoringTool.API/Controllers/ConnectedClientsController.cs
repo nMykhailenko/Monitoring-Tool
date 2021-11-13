@@ -7,6 +7,7 @@ using MonitoringTool.Application.Interfaces.Services;
 using MonitoringTool.Application.Models.RequestModels.ConnectedClient;
 using MonitoringTool.Application.Models.ResponseModels.ConnectedClient;
 using MonitoringTool.Application.Models.ResponseModels.Errors;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace MonitoringTool.API.Controllers
 {
@@ -52,24 +53,9 @@ namespace MonitoringTool.API.Controllers
                 success => Created($"api/connectedClients/{success.Name}", success),
                 entityIsAlreadyExists => Conflict(entityIsAlreadyExists));
         }
-
-        [HttpPost("{name}/connectedServices")]
-        [ProducesResponseType(typeof(IEnumerable<ConnectedServiceResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(EntityNotFoundResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddConnectedServicesAsync(
-            [FromRoute] string name,
-            [FromBody] IEnumerable<CreateConnectedServiceRequest> request,
-            CancellationToken cancellationToken)
-        {
-            var result = await _connectedClientService
-                .AddConnectedServicesToClientAsync(name, request, cancellationToken);
-
-            return result.Match<IActionResult>(
-                Ok,
-                entityNotFound => NotFound(entityNotFound));
-        }
         
         [HttpPost("{name}/connectedServices")]
+        [HttpPost("{name}/connectedServices", Name = "Add Connected service to connected client")]
         [ProducesResponseType(typeof(ConnectedServiceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(EntityNotFoundResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddConnectedServiceAsync(
