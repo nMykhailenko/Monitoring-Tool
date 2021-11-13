@@ -71,6 +71,23 @@ namespace MonitoringTool.Infrastructure.Services
             return new EntityIsAlreadyExists(errorMessage);
         }
 
+        public async Task<OneOf<ConnectedServiceResponse,EntityNotFoundResponse>> AddConnectedServiceToClientAsync(
+            string connectedClientName,
+            CreateConnectedServiceRequest connectedServiceRequest,
+            CancellationToken cancellationToken)
+        {
+            var connectedServiceRequests = new List<CreateConnectedServiceRequest> { connectedServiceRequest };
+            var result = await AddConnectedServicesToClientAsync(
+                connectedClientName,
+                connectedServiceRequests,
+                cancellationToken);
+
+            return result.Match<OneOf<ConnectedServiceResponse, EntityNotFoundResponse>>(
+                success => success.First(),
+                entityNotFound => entityNotFound);
+        }
+
+        
         public async Task<OneOf<IEnumerable<ConnectedServiceResponse>,EntityNotFoundResponse>> AddConnectedServicesToClientAsync(
             string connectedClientName,
             IEnumerable<CreateConnectedServiceRequest> connectedServicesRequests,

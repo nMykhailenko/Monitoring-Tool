@@ -68,6 +68,22 @@ namespace MonitoringTool.API.Controllers
                 Ok,
                 entityNotFound => NotFound(entityNotFound));
         }
+        
+        [HttpPost("{name}/connectedServices")]
+        [ProducesResponseType(typeof(ConnectedServiceResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EntityNotFoundResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddConnectedServiceAsync(
+            [FromRoute] string name,
+            [FromBody] CreateConnectedServiceRequest request,
+            CancellationToken cancellationToken)
+        {
+            var result = await _connectedClientService
+                .AddConnectedServiceToClientAsync(name, request, cancellationToken);
+
+            return result.Match<IActionResult>(
+                Ok,
+                entityNotFound => NotFound(entityNotFound));
+        }
 
         [HttpGet("active")]
         [ProducesResponseType(typeof(IEnumerable<ConnectedClientResponse>), StatusCodes.Status200OK)]

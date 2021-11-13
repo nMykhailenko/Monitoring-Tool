@@ -18,6 +18,10 @@ namespace MonitoringTool.Application.Interfaces.Services
             CreateConnectedClientRequest request, 
             CancellationToken cancellationToken);
 
+        Task<OneOf<ConnectedServiceResponse, EntityNotFoundResponse>> AddConnectedServiceToClientAsync(
+            string connectedClientName,
+            CreateConnectedServiceRequest connectedServiceRequest,
+            CancellationToken cancellationToken);
         Task<OneOf<IEnumerable<ConnectedServiceResponse>, EntityNotFoundResponse>> AddConnectedServicesToClientAsync(
             string connectedClientName,
             IEnumerable<CreateConnectedServiceRequest> connectedServicesRequests,
