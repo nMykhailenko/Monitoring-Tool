@@ -56,6 +56,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+
+
 app.MapControllers();
 
 var scope = app.Services.CreateScope();
