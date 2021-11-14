@@ -9,6 +9,7 @@ using MonitoringTool.API.Filters;
 using MonitoringTool.Application;
 using MonitoringTool.Infrastructure;
 using MonitoringTool.Infrastructure.Database;
+using Prometheus;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Bootstrapper = MonitoringTool.Application.Bootstrapper;
 
@@ -56,7 +57,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-
+app.UseMetricServer();
+app.UseHttpMetrics();
 
 app.MapControllers();
 
