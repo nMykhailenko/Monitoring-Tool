@@ -35,6 +35,26 @@ services:
             - monitoring-tool-postgres-db
         networks:
             - monitoring-tool 
+   
+    prometheus:
+        image: prom/prometheus
+        restart: always
+        ports:
+            - 9090:9090
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+        networks:
+            - monitoring-tool
+    
+    grafana: 
+        image: grafana/grafana
+        environment:
+            - GF_SECURITY_ADMIN_PASSWORD=Qwerty1!Qwerty1!
+        restart: always
+        ports:
+            - 3000:3000
+        networks:
+            - monitoring-tool
 
 volumes:
     monitoring-tool-data:
